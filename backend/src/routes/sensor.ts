@@ -87,4 +87,8 @@ router.post("/", (req, res) => {
   res.status(200).send("Dados recebidos");
 });
 
+router.get("/get", () => {
+  
+})
+
 export default router;
