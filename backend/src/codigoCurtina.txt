@@ -1,0 +1,65 @@
+#include <Servo.h>
+
+// Definições dos pinos
+const int ldrPin = A0;        // Pino do Fotorresistor (LDR)
+const int ledRedPin = D5;     // Pino do LED vermelho
+const int ledGreenPin = D6;   // Pino do LED verde
+const int ledBluePin = D7;    // Pino do LED azul
+const int servoPin = D4;      // Pino do microservo
+
+Servo myServo;                // Cria o objeto servo
+
+int ldrValue = 0;             // Valor lido do LDR
+
+void setup() {
+  // Inicializa a comunicação serial
+  Serial.begin(115200);
+
+  // Configura os pinos
+  pinMode(ldrPin, INPUT);
+  
+  // Configura os LEDs como saída
+  pinMode(ledRedPin, OUTPUT);
+  pinMode(ledGreenPin, OUTPUT);
+  pinMode(ledBluePin, OUTPUT);
+  
+  // Inicializa o servo
+  myServo.attach(servoPin);
+  
+  // Inicializa os LEDs apagados
+  digitalWrite(ledRedPin, LOW);
+  digitalWrite(ledGreenPin, LOW);
+  digitalWrite(ledBluePin, LOW);
+}
+
+void loop() {
+  // Lê o valor do LDR
+  ldrValue = analogRead(ldrPin);
+  
+  // Modo Automático
+  if (ldrValue > 500) {
+    // Ambiente escuro
+    Serial.println("Ambiente escuro");
+
+    // Acende o LED vermelho (luz baixa)
+    digitalWrite(ledRedPin, HIGH);
+    digitalWrite(ledGreenPin, LOW);
+    digitalWrite(ledBluePin, LOW);
+
+    // Move o servo para a posição 0 (fechar a cortina, por exemplo)
+    myServo.write(0);
+  } else {
+    // Ambiente claro
+    Serial.println("Ambiente claro");
+
+    // Acende o LED verde (luz suficiente)
+    digitalWrite(ledRedPin, LOW);
+    digitalWrite(ledGreenPin, HIGH);
+    digitalWrite(ledBluePin, LOW);
+
+    // Move o servo para a posição 90 (ajuste da cortina ou luz)
+    myServo.write(180);
+  }
+
+  delay(100); // Delay para garantir a estabilidade
+}

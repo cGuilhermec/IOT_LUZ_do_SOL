@@ -1,0 +1,49 @@
+#include <ESP8266WiFi.h>
+#include <ESP8266HTTPClient.h>
+
+const char* ssid = "GUILHERME-NOTE";
+const char* password = "123456789";
+const char* serverUrl = "http://10.68.55.116:3001/sensor";
+
+// Use o pino GPIO5, que corresponde ao D1 na WeMos D1
+const int flameSensorPin = 5;  // Digital output do KY-026
+
+void setup() {
+  pinMode(flameSensorPin, INPUT);
+  Serial.begin(115200);
+
+  WiFi.begin(ssid, password);
+  Serial.println("Conectando ao Wi-Fi...");
+  while (WiFi.status() != WL_CONNECTED) {
+    delay(1000);
+    Serial.print(".");
+  }
+  Serial.println("Wi-Fi conectado!");
+}
+
+void loop() {
+  int flameValue = digitalRead(flameSensorPin); // 0 = chama detectada
+
+  Serial.println("Valor do sensor de chama: " + String(flameValue));
+
+  if (flameValue == 0) {
+    Serial.println("Chama detectada!");
+  } else {
+    Serial.println("Sem chama detectada.");
+  }
+
+  if (WiFi.status() == WL_CONNECTED) {
+    WiFiClient client;  // Crie um cliente WiFi
+    HTTPClient http;
+    http.begin(client, serverUrl);  // Passe o WiFiClient para o método begin
+    http.addHeader("Content-Type", "application/json");
+
+    String json = "{\"flame\":" + String(flameValue) + "}";
+    int httpCode = http.POST(json);
+    Serial.println("Enviado: " + json);
+
+    http.end();
+  }
+
+  delay(5000); // envia a cada 5 segundos
+}
